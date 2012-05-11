@@ -1,0 +1,4 @@
+adapter: postgresql
+database: devfacotry_cloud_analytics
+username: postgres
+password: password

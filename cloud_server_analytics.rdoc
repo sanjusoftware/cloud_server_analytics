@@ -1,0 +1,5 @@
+= cloud_server_analytics
+
+Generate this with
+    cloud_server_analytics rdoc
+After you have described your command line interface
