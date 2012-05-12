@@ -8,4 +8,13 @@ class Server < ActiveRecord::Base
     runs.where(:state => Run::RUNNING).first
   end
 
+  # If CPU utilization is less than one percent in last 2 hrs, then we are going to consider the server
+  # to be idle
+  def is_idle?
+    end_time = Time.now
+    start_time = end_time - (3600 * 2)
+    server_utilizations = self.utilizations.where(:timestamp => start_time..end_time, :type => "CPUUtilization")
+    (server_utilizations.sum(:average) / server_utilizations.count) < 1
+  end
+
 end

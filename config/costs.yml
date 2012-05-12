@@ -1,0 +1,11 @@
+us-east-1:
+  t1.micro: 0.020
+  m1.medium: 0.160
+  m1.small: 0.080
+  m1.large: 0.320
+  m1.xlarge: 0.640
+  m2.xlarge: 0.450
+  m2.2xlarge: 0.900
+  m2.4xlarge: 1.800
+  c1.medium: 0.165
+  c1.xlarge: 0.660

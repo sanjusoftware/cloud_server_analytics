@@ -21,6 +21,14 @@ class Run < ActiveRecord::Base
         all_tags_are_same(other)
   end
 
+  def cost
+    end_time = self.stop_time || Time.now
+    costs_config = YAML.load_file(File.join(File.dirname(__FILE__), "../../config/costs.yml"))
+    run_time = (end_time - self.start_time) / 3600
+    run_time_in_hr = run_time.to_i < run_time ? run_time + 1 : run_time
+    run_time_in_hr * costs_config[self.region][self.flavor]
+  end
+
   private
 
   def all_tags_are_same(other)

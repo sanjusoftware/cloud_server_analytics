@@ -23,10 +23,14 @@ module CloudServerAnalytics
       end
     end
 
+    private
+
     def save_metrics_for(measure, run)
       instance_id =  run.server.name
+      puts "started getting #{measure} for instance #{instance_id}"
       metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
                                                       measure_name: measure,
+                                                      period: 360,
                                                       statistics: 'Average',
                                                       start_time: 1.hour.ago.to_time,
                                                       dimensions: "InstanceId=#{instance_id}")
@@ -39,6 +43,7 @@ module CloudServerAnalytics
                               :unit => item["Unit"], :average => item["Average"], :samples => item["Samples"])
         end
       end
+      puts "finished getting #{measure} for instance #{instance_id}"
     end
   end
 
