@@ -1,8 +1,6 @@
 module CloudServerAnalytics
   class CloudWatch
 
-    require 'aws'
-
     @@conn = nil
 
     def self.conn
@@ -26,7 +24,6 @@ module CloudServerAnalytics
     end
 
     def save_metrics_for(measure, instance_id)
-      puts "#{measure} for #{instance_id}"
       metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
                                                       measure_name: measure,
                                                       statistics: 'Average',
