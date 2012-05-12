@@ -15,15 +15,16 @@ module CloudServerAnalytics
 
     def load_utilization_metrics
       Database.establish_connection
-      ids = Run.select(:instance_id).uniq
-      ids.each do |run|
-        save_metrics_for("CPUUtilization", run.instance_id)
-        save_metrics_for("NetworkIn", run.instance_id)
-        save_metrics_for("NetworkOut", run.instance_id)
+      runs = Run.where(:state => "running").uniq
+      runs.each do |run|
+        save_metrics_for("CPUUtilization", run)
+        save_metrics_for("NetworkIn", run)
+        save_metrics_for("NetworkOut", run)
       end
     end
 
-    def save_metrics_for(measure, instance_id)
+    def save_metrics_for(measure, run)
+      instance_id =  run.server.name
       metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
                                                       measure_name: measure,
                                                       statistics: 'Average',
@@ -34,7 +35,7 @@ module CloudServerAnalytics
 
       if data_points
         data_points['member'].each do |item|
-          Utilization.create!(:instance_id => instance_id, :type => measure, :timestamp => item["Timestamp"],
+          Utilization.create!(:server_id => run.server.id, :type => measure, :timestamp => item["Timestamp"],
                               :unit => item["Unit"], :average => item["Average"], :samples => item["Samples"])
         end
       end

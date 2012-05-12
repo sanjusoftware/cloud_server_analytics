@@ -19,18 +19,34 @@ module CloudServerAnalytics
       instances = instance_descriptions["reservationSet"]["item"]
       instances.each do |instance_hash|
         instance = instance_hash["instancesSet"]["item"][0]
-        create_new_run(Run.find_by_instance_id(instance["instanceId"]) || Run.new, instance)
-        create_instance_tags(instance)
+        instance_id = instance["instanceId"]
+        server = Server.find_by_name(instance_id)
+        new_run = create_new_run(instance)
+
+        if server
+          puts "server exists"
+          run = server.current_run
+          if run and !run.is_same?(new_run)
+            puts "runs not same"
+            run.stop
+            server.runs << new_run
+          end
+        else
+          puts "new server found"
+          server = Server.new(:name => instance_id)
+          server.runs << new_run
+        end
+
+        server.save!
       end
     end
 
     private
 
-    def create_new_run(run, instance)
-
-      run.instance_id = instance["instanceId"]
+    def create_new_run(instance)
+      run = Run.new
       availability_zone = instance["placement"]["availabilityZone"]
-      run.ec2_region = availability_zone[0, (availability_zone.length-1)]
+      run.region = availability_zone[0, (availability_zone.length-1)]
       run.start_time = Time.parse(instance["launchTime"])
       run.flavor = instance["instanceType"]
       status = instance["instanceState"]["name"]
@@ -38,18 +54,19 @@ module CloudServerAnalytics
       if status.eql? 'stopped'
         run.stop_time = extract_stop_time(instance)
       end
-      run.save!
+      create_tags(instance, run)
+      run
+    end
+
+    def create_tags(instance, run)
+      instance["tagSet"]["item"].each do |tag|
+        run.tags.new(:key => tag["key"], :value => tag["value"])
+      end
     end
 
     def extract_stop_time(instance)
       time_part = instance["reason"].split('(')[1]
       Time.parse(time_part[0, (time_part.length - 1)])
-    end
-
-    def create_instance_tags(instance)
-      instance["tagSet"]["item"].each do |tag|
-        Tag.create!(:instance_id => instance["instanceId"], :key => tag["key"], :value => tag["value"])
-      end
     end
   end
 
