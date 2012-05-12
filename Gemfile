@@ -3,4 +3,4 @@ gemspec
 
 gem 'activerecord'
 gem 'pg'
-gem 'aws-sdk'
+gem 'amazon-ec2'
