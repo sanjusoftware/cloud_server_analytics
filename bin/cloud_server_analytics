@@ -40,11 +40,9 @@ command :load_instances do |c|
   c.default_value 'default'
   c.flag :f
   c.action do |global_options, options, args|
-
     CloudServerAnalytics::EC2.new.load_instances
-
   end
-  end
+end
 
 command :update_cost_and_utilization do |c|
   c.desc 'Describe a switch to metrics'
@@ -57,6 +55,15 @@ command :update_cost_and_utilization do |c|
 
     CloudServerAnalytics::CloudWatch.new.update_cost_and_utilization
 
+  end
+end
+
+desc 'Stops a server instance'
+arg_name 'stop_server'
+command :stop_server do |c|
+
+  c.action do |global_options, options, args|
+    CloudServerAnalytics::EC2.new.stop_server(args)
   end
 end
 

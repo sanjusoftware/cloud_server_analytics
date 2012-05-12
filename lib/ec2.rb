@@ -32,12 +32,21 @@ module CloudServerAnalytics
             server.runs << new_run
           end
         else
-          puts "new server found"
           server = Server.new(:name => instance_id)
           server.runs << new_run
         end
 
         server.save!
+      end
+    end
+
+    def stop_server(server_name)
+      Database.establish_connection
+      server = Server.find_by_name(server_name)
+      if server
+        EC2.conn.stop_instances(:instance_id => server_name)
+      else
+        raise "Invalid server instance provided #{server_name}"
       end
     end
 
