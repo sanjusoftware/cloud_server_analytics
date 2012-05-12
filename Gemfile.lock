@@ -22,6 +22,7 @@ GEM
       xml-simple (>= 1.0.12)
     arel (3.0.2)
     builder (3.0.0)
+    chronic (0.6.7)
     gli (1.6.0)
     i18n (0.6.0)
     json (1.7.1)
@@ -31,6 +32,9 @@ GEM
     rdoc (3.12)
       json (~> 1.4)
     tzinfo (0.3.33)
+    whenever (0.7.3)
+      activesupport (>= 2.3.4)
+      chronic (~> 0.6.3)
     xml-simple (1.1.1)
 
 PLATFORMS
@@ -43,3 +47,4 @@ DEPENDENCIES
   pg
   rake
   rdoc
+  whenever
