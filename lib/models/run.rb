@@ -21,6 +21,8 @@ class Run < ActiveRecord::Base
         all_tags_are_same(other)
   end
 
+  private
+
   def all_tags_are_same(other)
     self.tags.size == other.tags.size && each_tag_exists(other.tags, self.tags) && each_tag_exists(self.tags, other.tags)
   end
