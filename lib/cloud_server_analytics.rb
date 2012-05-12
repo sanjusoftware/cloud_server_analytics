@@ -1,2 +1,7 @@
-require 'amazon_ec2'
+require 'ec2'
+require 'cloud_watch'
+require 'aws'
+require 'run'
+require 'tag'
 require 'database'
+require 'time'

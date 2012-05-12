@@ -1,27 +1,21 @@
 module CloudServerAnalytics
-  class AmazonEC2
-    require 'aws'
-    require 'run'
-    require 'tag'
-    require 'database'
-    require 'time'
+  class EC2
 
-
-    @@ec2 = nil
+    @@conn = nil
 
     def self.conn
-      if @@ec2
-        @@ec2
+      if @@conn
+        @@conn
       else
         aws_config = YAML.load_file(File.join(File.dirname(__FILE__), "../config/secret_key.yml"))
-        @@ec2 = AWS::EC2::Base.new(:access_key_id => aws_config["access_key_id"], :secret_access_key => aws_config["secret_access_key"])
-        @@ec2
+        @@conn = AWS::EC2::Base.new(:access_key_id => aws_config["access_key_id"], :secret_access_key => aws_config["secret_access_key"])
+        @@conn
       end
     end
 
     def load_instances
       Database.establish_connection
-      instance_descriptions = AmazonEC2.conn.describe_instances
+      instance_descriptions = EC2.conn.describe_instances
       instances = instance_descriptions["reservationSet"]["item"]
       instances.each do |instance_hash|
         instance = instance_hash["instancesSet"]["item"][0]
@@ -45,7 +39,6 @@ module CloudServerAnalytics
         run.stop_time = extract_stop_time(instance)
       end
       run.save!
-
     end
 
     def extract_stop_time(instance)

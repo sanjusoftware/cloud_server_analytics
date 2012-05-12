@@ -33,15 +33,29 @@ flag [:f, :flagname]
 desc 'Enumerates running Ec2 instances and load them into a database'
 arg_name 'load_instances'
 command :load_instances do |c|
-  c.desc 'Describe a switch to generate_report'
+  c.desc 'Describe a switch to load_instances'
   c.switch :s
 
-  c.desc 'Describe a flag to generate_report'
+  c.desc 'Describe a flag to load_instances'
   c.default_value 'default'
   c.flag :f
   c.action do |global_options, options, args|
 
-    CloudServerAnalytics::AmazonEC2.new.load_instances
+    CloudServerAnalytics::EC2.new.load_instances
+
+  end
+  end
+
+command :metrics do |c|
+  c.desc 'Describe a switch to metrics'
+  c.switch :s
+
+  c.desc 'Describe a flag to metrics'
+  c.default_value 'default'
+  c.flag :f
+  c.action do |global_options, options, args|
+
+    CloudServerAnalytics::CloudWatch.new.get_metrics
 
   end
 end
