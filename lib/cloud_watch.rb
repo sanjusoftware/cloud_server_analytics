@@ -15,23 +15,30 @@ module CloudServerAnalytics
       end
     end
 
-    def get_metrics
+    def load_utilization_metrics
       Database.establish_connection
-      ids = Run.select(:instance_id)
+      ids = Run.select(:instance_id).uniq
       ids.each do |run|
-        puts "going for #{run.instance_id}"
-        metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
-                                                        measure_name: 'CPUUtilization',
-                                                        statistics: 'Average',
-                                                        start_time: 1.hour.ago.to_time,
-                                                        dimensions: "InstanceId=#{run.instance_id}")
+        save_metrics_for("CPUUtilization", run.instance_id)
+        save_metrics_for("NetworkIn", run.instance_id)
+        save_metrics_for("NetworkOut", run.instance_id)
+      end
+    end
 
-        datapoints = metrics['GetMetricStatisticsResult']['Datapoints']
+    def save_metrics_for(measure, instance_id)
+      puts "#{measure} for #{instance_id}"
+      metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
+                                                      measure_name: measure,
+                                                      statistics: 'Average',
+                                                      start_time: 1.hour.ago.to_time,
+                                                      dimensions: "InstanceId=#{instance_id}")
 
-        if datapoints
-          datapoints['member'].each do |item|
-            puts item
-          end
+      data_points = metrics['GetMetricStatisticsResult']['Datapoints']
+
+      if data_points
+        data_points['member'].each do |item|
+          Utilization.create!(:instance_id => instance_id, :type => measure, :timestamp => item["Timestamp"],
+                              :unit => item["Unit"], :average => item["Average"], :samples => item["Samples"])
         end
       end
     end

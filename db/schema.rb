@@ -12,5 +12,14 @@ ActiveRecord::Schema.define :version => 0 do
     t.string :instance_id
     t.string :key
     t.string :value
+    end
+
+  create_table :utilizations, :force => true do |t|
+    t.string :instance_id
+    t.string :type
+    t.string :unit
+    t.float :average
+    t.float :samples
+    t.timestamp :timestamp
   end
 end

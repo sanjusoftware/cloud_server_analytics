@@ -55,7 +55,7 @@ command :metrics do |c|
   c.flag :f
   c.action do |global_options, options, args|
 
-    CloudServerAnalytics::CloudWatch.new.get_metrics
+    CloudServerAnalytics::CloudWatch.new.load_utilization_metrics
 
   end
 end
