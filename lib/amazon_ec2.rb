@@ -13,7 +13,8 @@ module CloudServerAnalytics
       if @@ec2
         @@ec2
       else
-        @@ec2 = AWS::EC2::Base.new(:access_key_id => "AKIAIUYCZBPB2N6Q64WQ", :secret_access_key => "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")
+        aws_config = YAML.load_file(File.join(File.dirname(__FILE__), "../config/secret_key.yml"))
+        @@ec2 = AWS::EC2::Base.new(:access_key_id => aws_config["access_key_id"], :secret_access_key => aws_config["secret_access_key"])
         @@ec2
       end
     end
@@ -32,11 +33,6 @@ module CloudServerAnalytics
     private
 
     def create_new_run(run, instance)
-      puts instance["instanceState"]["name"]
-      puts instance["placement"]["availabilityZone"]
-      puts instance["instanceType"]
-      puts instance["launchTime"]
-      puts instance["reason"]
 
       run.instance_id = instance["instanceId"]
       availability_zone = instance["placement"]["availabilityZone"]
