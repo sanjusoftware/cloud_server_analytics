@@ -1,6 +1,6 @@
 class Server < ActiveRecord::Base
   has_many :runs
-  has_many :tags
+  has_many :utilizations
 
   attr_accessible :name, :billing_owner
 

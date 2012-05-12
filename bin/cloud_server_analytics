@@ -46,7 +46,7 @@ command :load_instances do |c|
   end
   end
 
-command :metrics do |c|
+command :update_cost_and_utilization do |c|
   c.desc 'Describe a switch to metrics'
   c.switch :s
 
@@ -55,7 +55,7 @@ command :metrics do |c|
   c.flag :f
   c.action do |global_options, options, args|
 
-    CloudServerAnalytics::CloudWatch.new.load_utilization_metrics
+    CloudServerAnalytics::CloudWatch.new.update_cost_and_utilization
 
   end
 end
@@ -63,16 +63,8 @@ end
 desc 'Creates the database'
 arg_name 'create_db'
 command :create_db do |c|
-  c.desc 'Describe a switch to generate_report'
-  c.switch :s
-
-  c.desc 'Describe a flag to generate_report'
-  c.default_value 'default'
-  c.flag :f
   c.action do |global_options, options, args|
-
     Database.create_database
-
   end
 end
 

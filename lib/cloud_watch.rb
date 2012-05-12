@@ -13,7 +13,7 @@ module CloudServerAnalytics
       end
     end
 
-    def load_utilization_metrics
+    def update_cost_and_utilization
       Database.establish_connection
       runs = Run.where(:state => "running").uniq
       runs.each do |run|
