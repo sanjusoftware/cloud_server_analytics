@@ -17,6 +17,7 @@ module CloudServerAnalytics
       Database.establish_connection
       runs = Run.where(:state => "running").uniq
       runs.each do |run|
+        run.add_hourly_cost
         save_metrics_for("CPUUtilization", run)
         save_metrics_for("NetworkIn", run)
         save_metrics_for("NetworkOut", run)
@@ -26,8 +27,8 @@ module CloudServerAnalytics
     private
 
     def save_metrics_for(measure, run)
-      instance_id =  run.server.name
-      puts "started getting #{measure} for instance #{instance_id}"
+      instance_id = run.server.name
+      puts "Started getting #{measure} for instance #{instance_id}"
       metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
                                                       measure_name: measure,
                                                       period: 360,
@@ -43,7 +44,7 @@ module CloudServerAnalytics
                               :unit => item["Unit"], :average => item["Average"], :samples => item["Samples"])
         end
       end
-      puts "finished getting #{measure} for instance #{instance_id}"
+      puts "Finished getting #{measure} for instance #{instance_id}"
     end
   end
 

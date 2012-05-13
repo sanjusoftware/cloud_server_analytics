@@ -26,5 +26,11 @@ ActiveRecord::Schema.define :version => 0 do
     t.float :average
     t.float :samples
     t.timestamp :timestamp
+    end
+
+  create_table :costs, :force => true do |t|
+    t.integer :run_id
+    t.float :amount
+    t.timestamp :upto
   end
 end
