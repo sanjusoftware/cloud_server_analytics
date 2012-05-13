@@ -51,6 +51,7 @@ module CloudServerAnalytics
 
     def print_report(options)
       STDOUT.write "#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n"
+      raise "Not yet fully implemented!! Need to know how to get the billing owner fo the instance"
     end
 
     private
