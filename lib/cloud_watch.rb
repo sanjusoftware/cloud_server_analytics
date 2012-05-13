@@ -44,6 +44,7 @@ module CloudServerAnalytics
                                                       statistics: 'Average',
                                                       start_time: 1.hour.ago.to_time,
                                                       dimensions: "InstanceId=#{instance_id}")
+      puts metrics
 
       data_points = metrics['GetMetricStatisticsResult']['Datapoints']
 
