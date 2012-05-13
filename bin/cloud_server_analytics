@@ -31,44 +31,52 @@ arg_name 'The name of the argument'
 flag [:f, :flagname]
 
 desc 'Enumerates running Ec2 instances and load them into a database'
-arg_name 'load_instances'
 command :load_instances do |c|
-  c.desc 'Describe a switch to load_instances'
-  c.switch :s
-
-  c.desc 'Describe a flag to load_instances'
-  c.default_value 'default'
-  c.flag :f
   c.action do |global_options, options, args|
     CloudServerAnalytics::EC2.new.load_instances
   end
 end
 
 command :update_cost_and_utilization do |c|
-  c.desc 'Describe a switch to metrics'
-  c.switch :s
-
-  c.desc 'Describe a flag to metrics'
-  c.default_value 'default'
-  c.flag :f
   c.action do |global_options, options, args|
-
     CloudServerAnalytics::CloudWatch.new.update_cost_and_utilization
+  end
+end
+
+desc 'Prints an analytical report on the cost and utilization of the ec2 instances for a give time period'
+arg_name 'project_name [command[ command]*]'
+command :report_cost do |c|
+  c.desc 'Provide the time period for which you want the report [week, day, month]'
+  c.default_value 'week'
+  c.flag [:tp,'time-period']
+
+  c.desc 'Provide the start time for the period for which you want the report'
+  c.default_value '24hrs ago'
+  c.flag [:st,'start-time']
+
+  c.desc 'What report you want to see. [cost, utilization]'
+  c.default_value 'cost'
+  c.flag [:v,'variable']
+
+  c.desc 'attribute values by which to partition the output. [billing-owner]'
+  c.default_value 'billing-owner'
+  c.flag [:a,'attribute']
+
+  c.action do |global_options, options, args|
+    puts options
+    #CloudServerAnalytics::CloudWatch.new.update_cost_and_utilization
 
   end
 end
 
 desc 'Stops a server instance'
-arg_name 'stop_server'
 command :stop_server do |c|
-
   c.action do |global_options, options, args|
     CloudServerAnalytics::EC2.new.stop_server(args)
   end
 end
 
 desc 'Creates the database'
-arg_name 'create_db'
 command :create_db do |c|
   c.action do |global_options, options, args|
     Database.create_database
