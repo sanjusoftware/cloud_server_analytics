@@ -14,7 +14,9 @@ class Run < ActiveRecord::Base
   def stop
     self.state = STOPPED
     self.stop_time = Time.now
-    add_cost(costs.order("upto desc").last().upto, self.stop_time)
+    if costs
+      add_cost(costs_order.order("upto desc").last().upto, self.stop_time)
+    end
   end
 
   def is_same?(other)
@@ -25,9 +27,8 @@ class Run < ActiveRecord::Base
   end
 
   def add_hourly_cost
-    cost_records = costs.order("upto desc")
-    if cost_records.present?
-      last_upto = cost_records.last().upto
+    if costs.present?
+      last_upto = costs.order("upto desc").last().upto
       if has_one_hour_passed?(last_upto)
         costs.new(:amount => hourly_run_cost, :upto => last_upto + AN_HOUR)
       end
