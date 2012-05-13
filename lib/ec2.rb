@@ -24,10 +24,8 @@ module CloudServerAnalytics
         new_run = create_new_run(instance)
 
         if server
-          puts "server exists"
           run = server.current_run
           if run and !run.is_same?(new_run)
-            puts "runs not same"
             run.stop
             server.runs << new_run
           end
@@ -45,6 +43,7 @@ module CloudServerAnalytics
       server = Server.find_by_name(server_name)
       if server
         EC2.conn.stop_instances(:instance_id => server_name)
+        server.current_run.stop
       else
         raise "Invalid server instance provided #{server_name}"
       end

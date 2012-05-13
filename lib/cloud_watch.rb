@@ -21,6 +21,7 @@ module CloudServerAnalytics
         save_metrics_for("CPUUtilization", run)
         save_metrics_for("NetworkIn", run)
         save_metrics_for("NetworkOut", run)
+        run.save!
       end
     end
 
@@ -28,7 +29,7 @@ module CloudServerAnalytics
 
     def save_metrics_for(measure, run)
       instance_id = run.server.name
-      puts "Started getting #{measure} for instance #{instance_id}"
+      puts "=======Started getting #{measure} for instance #{instance_id}"
       metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
                                                       measure_name: measure,
                                                       period: 360,
@@ -44,7 +45,7 @@ module CloudServerAnalytics
                               :unit => item["Unit"], :average => item["Average"], :samples => item["Samples"])
         end
       end
-      puts "Finished getting #{measure} for instance #{instance_id}"
+      puts "Finished getting #{measure} for instance #{instance_id}========"
     end
   end
 

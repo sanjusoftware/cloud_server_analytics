@@ -14,6 +14,7 @@ class Run < ActiveRecord::Base
   def stop
     self.state = STOPPED
     self.stop_time = Time.now
+
   end
 
   def is_same?(other)
@@ -24,25 +25,29 @@ class Run < ActiveRecord::Base
   end
 
   def add_hourly_cost
-    costs_config = YAML.load_file(File.join(File.dirname(__FILE__), "../../config/costs.yml"))
-    cost_records = costs.order("up_to desc")
+    cost_records = costs.order("upto desc")
     if cost_records.present?
       last_upto = cost_records.last().upto
-      if one_hour_has_passed_since_last_cost_record(last_upto)
-        costs.new(:amount => costs_config[self.region][self.flavor], :upto => last_upto + AN_HOUR)
+      if has_one_hour_passed?(last_upto)
+        costs.new(:amount => hourly_run_cost, :upto => last_upto + AN_HOUR)
       end
     else
       end_time = self.stop_time || Time.now
       run_time = (end_time - self.start_time) / AN_HOUR
       run_time_in_hr = run_time.to_i < run_time ? run_time + 1 : run_time
-      costs.new(:amount => run_time_in_hr * costs_config[self.region][self.flavor], :upto => end_time)
+      costs.new(:amount => run_time_in_hr * hourly_run_cost, :upto => end_time)
     end
+
   end
 
   private
 
-  def one_hour_has_passed_since_last_cost_record(cost_recorded_upto)
-    (Time.now - cost_recorded_upto) < AN_HOUR
+  def hourly_run_cost
+    YAML.load_file(File.join(File.dirname(__FILE__), "../../config/costs.yml"))[self.region][self.flavor]
+  end
+
+  def has_one_hour_passed?(cost_recorded_upto)
+    (Time.now - cost_recorded_upto) > AN_HOUR
   end
 
   def all_tags_are_same(other)
