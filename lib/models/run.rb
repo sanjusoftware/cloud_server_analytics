@@ -14,7 +14,7 @@ class Run < ActiveRecord::Base
   def stop
     self.state = STOPPED
     self.stop_time = Time.now
-
+    add_cost(costs.order("upto desc").last().upto, self.stop_time)
   end
 
   def is_same?(other)
@@ -32,15 +32,18 @@ class Run < ActiveRecord::Base
         costs.new(:amount => hourly_run_cost, :upto => last_upto + AN_HOUR)
       end
     else
-      end_time = self.stop_time || Time.now
-      run_time = (end_time - self.start_time) / AN_HOUR
-      run_time_in_hr = run_time.to_i < run_time ? run_time + 1 : run_time
-      costs.new(:amount => run_time_in_hr * hourly_run_cost, :upto => end_time)
+      add_cost(self.start_time, self.stop_time || Time.now)
     end
 
   end
 
   private
+
+  def add_cost(from_time, to_time)
+    run_time = (to_time - from_time) / AN_HOUR
+    run_time_in_hr = run_time.to_i < run_time ? run_time + 1 : run_time
+    costs.new(:amount => run_time_in_hr * hourly_run_cost, :upto => to_time)
+  end
 
   def hourly_run_cost
     YAML.load_file(File.join(File.dirname(__FILE__), "../../config/costs.yml"))[self.region][self.flavor]
