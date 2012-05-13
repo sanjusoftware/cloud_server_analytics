@@ -1,7 +1,10 @@
 module CloudServerAnalytics
   class CloudWatch
 
+    attr_accessor :queue
+
     @@conn = nil
+    @queue = :cost_and_utilization
 
     def self.conn
       if @@conn
@@ -13,7 +16,12 @@ module CloudServerAnalytics
       end
     end
 
+    def perform
+      update_cost_and_utilization
+    end
+
     def update_cost_and_utilization
+      puts "came to perform the job"
       Database.establish_connection
       runs = Run.where(:state => "running").uniq
       runs.each do |run|
@@ -29,7 +37,7 @@ module CloudServerAnalytics
 
     def save_metrics_for(measure, run)
       instance_id = run.server.name
-      puts "=======Started getting #{measure} for instance #{instance_id}"
+      puts "=======Started getting #{measure} for instance #{instance_id}======="
       metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
                                                       measure_name: measure,
                                                       period: 360,
@@ -45,7 +53,7 @@ module CloudServerAnalytics
                               :unit => item["Unit"], :average => item["Average"], :samples => item["Samples"])
         end
       end
-      puts "Finished getting #{measure} for instance #{instance_id}========"
+      puts "=======Finished getting #{measure} for instance #{instance_id}========"
     end
   end
 

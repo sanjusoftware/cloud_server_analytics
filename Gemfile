@@ -4,4 +4,5 @@ gemspec
 gem 'activerecord'
 gem 'pg'
 gem 'amazon-ec2'
-gem 'whenever', :require => false
+gem 'resque'
+gem 'resque-scheduler', :require => 'resque_scheduler'
