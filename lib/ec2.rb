@@ -49,6 +49,10 @@ module CloudServerAnalytics
       end
     end
 
+    def print_report(options)
+      STDOUT.write "#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n"
+    end
+
     private
 
     def create_new_run(instance)
