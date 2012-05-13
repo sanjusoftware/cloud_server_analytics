@@ -1,0 +1,6 @@
+update_cost_and_utilization:
+  every: 1hr
+  class: CloudServerAnalytics::CloudWatch
+  queue: queue
+  args:
+  description: "This job queues the updating of the cost and utilization metrics for the instances"
