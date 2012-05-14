@@ -1,20 +1,13 @@
 module CloudServerAnalytics
-  class EC2
+  class EC2 < API
 
-    @@conn = nil
-
-    def self.conn
-      if @@conn
-        @@conn
-      else
-        aws_config = YAML.load_file(File.join(File.dirname(__FILE__), "../config/secret_key.yml"))
-        @@conn = AWS::EC2::Base.new(:access_key_id => aws_config["access_key_id"], :secret_access_key => aws_config["secret_access_key"])
-        @@conn
-      end
+    def conn_obj
+      puts "came here"
+      "AWS::EC2::Base"
     end
 
     def load_instances
-      instance_descriptions = EC2.conn.describe_instances
+      instance_descriptions = conn.describe_instances
       instances = instance_descriptions["reservationSet"]["item"]
       instances.each do |instance_hash|
         instance = instance_hash["instancesSet"]["item"][0]
@@ -41,7 +34,7 @@ module CloudServerAnalytics
     def stop_server(server_name)
       server = Server.find_by_name(server_name)
       if server
-        EC2.conn.stop_instances(:instance_id => server_name)
+        conn.stop_instances(:instance_id => server_name)
         server.current_run.stop
       else
         raise "Invalid server instance provided #{server_name}"

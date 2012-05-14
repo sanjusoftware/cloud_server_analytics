@@ -1,19 +1,12 @@
 module CloudServerAnalytics
-  class CloudWatch
+  class CloudWatch < API
 
     attr_accessor :queue
 
-    @@conn = nil
     @queue = :cost_and_utilization
 
-    def self.conn
-      if @@conn
-        @@conn
-      else
-        aws_config = YAML.load_file(File.join(File.dirname(__FILE__), "../config/secret_key.yml"))
-        @@conn = AWS::Cloudwatch::Base.new(:access_key_id => aws_config["access_key_id"], :secret_access_key => aws_config["secret_access_key"])
-        @@conn
-      end
+    def conn_obj
+      "AWS::Cloudwatch::Base"
     end
 
     def perform
@@ -36,7 +29,7 @@ module CloudServerAnalytics
 
     def save_metrics_for(measure, run)
       instance_id = run.server.name
-      metrics = CloudWatch.conn.get_metric_statistics(namespace: 'AWS/EC2',
+      metrics = conn.get_metric_statistics(namespace: 'AWS/EC2',
                                                       measure_name: measure,
                                                       period: 360,
                                                       statistics: 'Average',

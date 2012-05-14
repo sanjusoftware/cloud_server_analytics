@@ -1,3 +1,4 @@
+require_relative 'api'
 require_relative 'ec2'
 require_relative 'cloud_watch'
 require 'aws'
