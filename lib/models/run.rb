@@ -15,7 +15,7 @@ class Run < ActiveRecord::Base
     self.state = STOPPED
     self.stop_time = Time.now
     if costs
-      add_cost(costs_order.order("upto desc").last().upto, self.stop_time)
+      add_cost(costs.order("upto desc").last().upto, self.stop_time)
     end
   end
 
@@ -43,7 +43,7 @@ class Run < ActiveRecord::Base
   def add_cost(from_time, to_time)
     run_time = (to_time - from_time) / AN_HOUR
     run_time_in_hr = run_time.to_i < run_time ? run_time + 1 : run_time
-    costs.new(:amount => run_time_in_hr * hourly_run_cost, :upto => to_time)
+    costs.create!(:amount => run_time_in_hr * hourly_run_cost, :upto => to_time)
   end
 
   def hourly_run_cost

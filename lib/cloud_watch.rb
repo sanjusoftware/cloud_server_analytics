@@ -22,7 +22,6 @@ module CloudServerAnalytics
     end
 
     def update_cost_and_utilization
-      Database.establish_connection
       runs = Run.where(:state => "running").uniq
       runs.each do |run|
         run.add_hourly_cost
@@ -43,7 +42,6 @@ module CloudServerAnalytics
                                                       statistics: 'Average',
                                                       start_time: 1.hour.ago.to_time,
                                                       dimensions: "InstanceId=#{instance_id}")
-      puts metrics
 
       data_points = metrics['GetMetricStatisticsResult']['Datapoints']
 

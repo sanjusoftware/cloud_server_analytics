@@ -2,15 +2,16 @@ require "spec_helper"
 
 describe "Run" do
   before(:each) do
-    Database.establish_connection
+    @run = Run.create!(:id => 1, :state => Run::RUNNING, :start_time => Time.now - 1.hour, :region => "us-east-1", :flavor => "t1.micro")
   end
 
   describe "stop" do
     it "should stop the run and update the cost" do
-      run = Run.new(:state => Run::RUNNING)
-      run.expects(:costs).returns(nil)
-      run.stop
-      run.state.should == Run::STOPPED
+      Cost.create!(:run_id => 1, :upto => Time.now)
+      @run.costs.count.should == 1
+      @run.stop
+      @run.state.should == Run::STOPPED
+      @run.costs.count.should == 2
     end
   end
 
@@ -26,36 +27,23 @@ describe "Run" do
 
   describe "add hourly cost" do
     it "should add if there is no previous cost record" do
-      run = Run.new(:start_time => Time.now - 1.day, :flavor => "flavor", :region => "region")
-      run.expects(:hourly_run_cost).returns(10)
-      run.costs.size.should == 0
-      run.add_hourly_cost
-      run.costs.size.should == 1
+      @run.costs.size.should == 0
+      @run.add_hourly_cost
+      @run.costs.size.should == 1
     end
 
     it "should not add cost if its not been more than one hour since the last recorded cost time" do
-      run = Run.new(:start_time => Time.now - 1.day, :flavor => "flavor", :region => "region")
-      cost = Cost.new(:upto => Time.now - 5.minutes)
-      costs = [cost]
-      costs.expects(:order).returns(costs)
-      costs.expects(:last).returns(cost)
-
-      run.stubs(:costs).returns(costs)
-      run.costs.size.should == 1
-      run.add_hourly_cost
-      run.costs.size.should == 1
+      @run.costs.create!(:upto => Time.now - 5.minutes)
+      @run.costs.size.should == 1
+      @run.add_hourly_cost
+      @run.costs.size.should == 1
     end
 
     it "should add only if its been more than one hour since the last recorded cost time" do
-      run = Run.new(:start_time => Time.now - 1.day, :flavor => "flavor", :region => "region")
-      cost = Cost.new(:upto => Time.now - 2.hours)
-      costs = [cost]
-      costs.expects(:order).returns(costs)
-      costs.expects(:last).returns(cost)
-      costs.expects(:new)
-      run.stubs(:costs).returns(costs)
-      run.expects(:hourly_run_cost).returns(10)
-      run.add_hourly_cost
+      @run.costs.create!(:upto => Time.now - 2.hours)
+      @run.costs.size.should == 1
+      @run.add_hourly_cost
+      @run.costs.size.should == 2
     end
   end
 

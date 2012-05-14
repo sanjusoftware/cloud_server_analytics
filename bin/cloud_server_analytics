@@ -66,7 +66,7 @@ command :stop_server do |c|
   end
 end
 
-desc 'Creates the database'
+desc 'Creates the database tables'
 command :create_db do |c|
   c.action do |global_options, options, args|
     Database.create_database
@@ -74,18 +74,11 @@ command :create_db do |c|
 end
 
 pre do |global, command, options, args|
-  # Pre logic here
-  # Return true to proceed; false to abort and not call the
-  # chosen command
-  # Use skips_pre before a command to skip this block
-  # on that command only
+  Database.establish_connection("development")
   true
 end
 
 post do |global, command, options, args|
-  # Post logic here
-  # Use skips_post before a command to skip this
-  # block on that command only
 end
 
 on_error do |exception|

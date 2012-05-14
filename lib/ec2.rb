@@ -14,7 +14,6 @@ module CloudServerAnalytics
     end
 
     def load_instances
-      Database.establish_connection
       instance_descriptions = EC2.conn.describe_instances
       instances = instance_descriptions["reservationSet"]["item"]
       instances.each do |instance_hash|
@@ -39,7 +38,6 @@ module CloudServerAnalytics
     end
 
     def stop_server(server_name)
-      Database.establish_connection
       server = Server.find_by_name(server_name)
       if server
         EC2.conn.stop_instances(:instance_id => server_name)
