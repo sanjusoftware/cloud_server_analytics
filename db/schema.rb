@@ -31,6 +31,7 @@ ActiveRecord::Schema.define :version => 0 do
   create_table :costs, :force => true do |t|
     t.integer :run_id
     t.float :amount
+    t.string :billing_owner
     t.timestamp :upto
   end
 end

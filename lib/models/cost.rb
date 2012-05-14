@@ -1,5 +1,5 @@
 class Cost < ActiveRecord::Base
   belongs_to :run
 
-  attr_accessible :run_id, :amount, :upto
+  attr_accessible :run_id, :amount, :upto, :billing_owner
 end

@@ -30,7 +30,7 @@ class Run < ActiveRecord::Base
     if costs.present?
       last_upto = costs.order("upto desc").last().upto
       if has_one_hour_passed?(last_upto)
-        costs.new(:amount => hourly_run_cost, :upto => last_upto + AN_HOUR)
+        costs.create!(:amount => hourly_run_cost, :upto => last_upto + AN_HOUR, :billing_owner => server.billing_owner)
       end
     else
       add_cost(self.start_time, self.stop_time || Time.now)
@@ -43,7 +43,8 @@ class Run < ActiveRecord::Base
   def add_cost(from_time, to_time)
     run_time = (to_time - from_time) / AN_HOUR
     run_time_in_hr = run_time.to_i < run_time ? run_time + 1 : run_time
-    costs.create!(:amount => run_time_in_hr * hourly_run_cost, :upto => to_time)
+
+    costs.create!(:amount => run_time_in_hr * hourly_run_cost, :upto => to_time, :billing_owner => server.billing_owner)
   end
 
   def hourly_run_cost

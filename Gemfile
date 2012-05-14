@@ -9,3 +9,6 @@ gem 'resque-scheduler', :require => 'resque_scheduler'
 gem 'rspec'
 gem 'mocha'
 gem 'database_cleaner'
+gem 'pry'
+
+

@@ -43,7 +43,7 @@ command :report_cost do |c|
   c.flag [:tp,'time-period']
 
   c.desc 'Provide the start time for the period for which you want the report'
-  c.default_value '24hrs ago'
+  c.default_value ''
   c.flag [:st,'start-time']
 
   c.desc 'What report you want to see. [cost, utilization]'
@@ -82,8 +82,8 @@ post do |global, command, options, args|
 end
 
 on_error do |exception|
-  # Error logic here
-  # return false to skip default error handling
+  puts exception.message
+  puts exception.backtrace
   true
 end
 

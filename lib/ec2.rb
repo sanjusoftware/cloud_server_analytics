@@ -20,20 +20,21 @@ module CloudServerAnalytics
         instance = instance_hash["instancesSet"]["item"][0]
         instance_id = instance["instanceId"]
         server = Server.find_by_name(instance_id)
-        new_run = create_new_run(instance)
 
         if server
           run = server.current_run
+          new_run = create_new_run(server.runs.new, instance)
           if run and !run.is_same?(new_run)
             run.stop
             server.runs << new_run
+            server.save!
           end
         else
-          server = Server.new(:name => instance_id)
-          server.runs << new_run
+          server = Server.create!(:name => instance_id)
+          server.runs << create_new_run(server.runs.new, instance)
+          server.save!
         end
 
-        server.save!
       end
     end
 
@@ -48,14 +49,42 @@ module CloudServerAnalytics
     end
 
     def print_report(options)
-      STDOUT.write "#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n"
-      raise "Not yet fully implemented!! Need to know how to get the billing owner fo the instance"
+      start_time = Time.now
+      if options[:st]
+        begin
+          start_time = Time.parse(options[:st])
+        rescue
+          STDOUT.write "Start time is not provided or invalid. Taking it as current time #{start_time}\n\n"
+        end
+      end
+
+      case options[:tp]
+        when 'day'
+          time_period = 1.day
+        when 'month'
+          time_period = 1.month
+        else
+          time_period = 1.week
+      end
+
+      output = ("#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n")
+
+      all_applicable_costs = Cost.where(:upto > start_time)
+      end_time = all_applicable_costs.max(:upto)
+
+      while start_time < end_time
+
+        upto_time = start_time + time_period
+        costs_for_time_period = all_applicable_costs.where(:upto => start_time..upto_time).sum(:amount).group(:billing_owner).order(:amount)
+        costs_for_time_period.each do |cost|
+          output.concat("#{start_time.strftime("%m/%d/%Y")} | $#{cost.amount} | #{cost.billing_owner}\n")
+        end
+      end
     end
 
     private
 
-    def create_new_run(instance)
-      run = Run.new
+    def create_new_run(run, instance)
       availability_zone = instance["placement"]["availabilityZone"]
       run.region = availability_zone[0, (availability_zone.length-1)]
       run.start_time = Time.parse(instance["launchTime"])
@@ -72,6 +101,10 @@ module CloudServerAnalytics
     def create_tags(instance, run)
       instance["tagSet"]["item"].each do |tag|
         run.tags.new(:key => tag["key"], :value => tag["value"])
+        if tag["key"] == 'billing-owner'
+          run.server.billing_owner = tag["value"]
+          run.server.save!
+        end
       end
     end
 
