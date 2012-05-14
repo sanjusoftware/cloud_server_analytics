@@ -9,4 +9,10 @@ require 'models/utilization'
 require 'models/tag'
 require 'database'
 require 'time'
-require "pry"
+require 'pry'
+
+module CloudServerAnalytics
+  VERSION = '0.0.1'
+end
+
+CSA = CloudServerAnalytics

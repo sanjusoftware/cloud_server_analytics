@@ -13,26 +13,25 @@ end
 $: << File.expand_path(File.dirname(File.realpath(__FILE__)) + '/../lib')
 require 'rubygems'
 require 'gli'
-require 'cloud_server_analytics_version'
 require 'cloud_server_analytics'
 
 include GLI
 
 program_desc 'Analytical reporting of Amazon EC2'
 
-version CloudServerAnalytics::VERSION
+version CSA::VERSION
 
 desc 'Enumerates running Ec2 instances and load them into a database'
 command :load_instances do |c|
   c.action do |global_options, options, args|
-    CloudServerAnalytics::EC2.new.load_instances
+    CSA::EC2.new.load_instances
   end
 end
 
 desc 'Updates the cost and utilization data in the system'
 command :update_cost_and_utilization do |c|
   c.action do |global_options, options, args|
-    CloudServerAnalytics::CloudWatch.new.update_cost_and_utilization
+    CSA::CloudWatch.new.update_cost_and_utilization
   end
 end
 
@@ -55,26 +54,26 @@ command :cost_report do |c|
   c.flag [:a,'attribute']
 
   c.action do |global_options, options, args|
-    CloudServerAnalytics::EC2.new.print_report(options)
+    CSA::EC2.new.print_report(options)
   end
 end
 
 desc 'Stops a server instance'
 command :stop_server do |c|
   c.action do |global_options, options, args|
-    CloudServerAnalytics::EC2.new.stop_server(args)
+    CSA::EC2.new.stop_server(args)
   end
 end
 
 desc 'Creates the database tables'
 command :create_db do |c|
   c.action do |global_options, options, args|
-    Database.create_database
+    CSA::Database.create_database
   end
 end
 
 pre do |global, command, options, args|
-  Database.establish_connection("development")
+  CSA::Database.establish_connection("development")
   true
 end
 

@@ -67,6 +67,15 @@ module CloudServerAnalytics
           time_period = 1.week
       end
 
+      case options[:v]
+        when 'cost'
+
+        when 'utilization'
+
+        else
+          raise "The attribute value is not supported!!"
+      end
+
       output = ("#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n")
 
       end_time = Cost.maximum(:upto)

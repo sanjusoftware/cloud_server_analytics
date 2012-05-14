@@ -1,5 +1,5 @@
 # Ensure we require the local version and not one we might have installed already
-require File.join([File.dirname(__FILE__),'lib','cloud_server_analytics_version.rb'])
+require File.join([File.dirname(__FILE__),'lib','cloud_server_analytics.rb'])
 spec = Gem::Specification.new do |s| 
   s.name = 'cloud_server_analytics'
   s.version = CloudServerAnalytics::VERSION
@@ -11,7 +11,7 @@ spec = Gem::Specification.new do |s|
 # Add your other files here if you make them
   s.files = %w(
 bin/cloud_server_analytics
-lib/cloud_server_analytics_version.rb
+lib/cloud_server_analytics.rb
   )
   s.require_paths << 'lib'
   s.has_rdoc = true
