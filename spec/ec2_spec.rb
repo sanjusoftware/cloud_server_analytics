@@ -78,22 +78,11 @@ describe "EC2" do
       Server.create!(:name => "server3", :billing_owner => "sanjeev")
       Server.create!(:name => "server4", :billing_owner => "mishra")
       Server.any_instance.stubs(:is_idle?).returns(true)
-      idle_servers = @ec2.report_idle_servers
+      idle_servers = @ec2.idle_servers
       puts idle_servers.inspect
       idle_servers["sanjeev"].size.should == 2
       idle_servers["mishra"].size.should == 2
     end
-
-  end
-
-  describe "report" do
-    it "should give cost report grouped by billing owner" do
-      idle_servers = @ec2.report_idle_servers
-      puts idle_servers.inspect
-      idle_servers["sanjeev"].size.should == 2
-      idle_servers["mishra"].size.should == 2
-    end
-
   end
 
 end
