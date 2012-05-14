@@ -36,7 +36,7 @@ command :update_cost_and_utilization do |c|
 end
 
 desc 'Prints an analytical report on the cost and utilization of the ec2 instances for a give time period'
-command :cost_report do |c|
+command :report do |c|
   c.desc 'Provide the time period for which you want the report [week, day, month]'
   c.default_value 'week'
   c.flag [:tp, 'time-period']
@@ -54,7 +54,7 @@ command :cost_report do |c|
   c.flag [:a, 'attribute']
 
   c.action do |global_options, options, args|
-    CSA::EC2.new.print_report(options)
+    STDOUT.write CSA::EC2.new.print_report(options)
   end
 end
 

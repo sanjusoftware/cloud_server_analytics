@@ -90,7 +90,7 @@ module CloudServerAnalytics
           raise "The attribute value is not supported!!"
       end
 
-      STDOUT.write output
+      output
     end
 
     private
