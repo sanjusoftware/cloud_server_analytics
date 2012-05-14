@@ -2,7 +2,8 @@ require "spec_helper"
 
 describe "Run" do
   before(:each) do
-    @run = Run.create!(:id => 1, :state => Run::RUNNING, :start_time => Time.now - 1.hour, :region => "us-east-1", :flavor => "t1.micro")
+    server = Server.create!(:name => "server", :billing_owner => "sanjeev")
+    @run = server.runs.create!(:id => 1, :state => Run::RUNNING, :start_time => Time.now - 1.hour, :region => "us-east-1", :flavor => "t1.micro")
   end
 
   describe "stop" do

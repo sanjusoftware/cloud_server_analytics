@@ -8,7 +8,7 @@ require 'cloud_server_analytics'
 require 'mocha'
 require 'database_cleaner'
 
-Database.establish_connection("test")
+CSA::Database.establish_connection("test")
 DatabaseCleaner.strategy = :truncation
 
 RSpec.configure do |config|
