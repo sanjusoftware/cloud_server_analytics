@@ -69,16 +69,16 @@ module CloudServerAnalytics
 
       output = ("#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n")
 
-      all_applicable_costs = Cost.where("upto > ?", start_time)
       end_time = Cost.maximum(:upto)
 
       while start_time < end_time
 
         upto_time = start_time + time_period
-        costs_for_time_period = all_applicable_costs.where(:upto => start_time..upto_time).sum(:amount).group(:billing_owner).order(:amount)
+        costs_for_time_period = Cost.find_by_sql ["select sum(amount) as amount, billing_owner from costs where upto > ? and upto < ? GROUP BY billing_owner ORDER BY amount", start_time, upto_time]
         costs_for_time_period.each do |cost|
           output.concat("#{start_time.strftime("%m/%d/%Y")} | $#{cost.amount} | #{cost.billing_owner}\n")
         end
+        start_time = upto_time
       end
 
       STDOUT.write output
