@@ -54,14 +54,14 @@ command :report do |c|
   c.flag [:a, 'attribute']
 
   c.action do |global_options, options, args|
-    STDOUT.write CSA::EC2.new.print_report(options)
+    STDOUT.write CSA::EC2.new.report(options)
   end
 end
 
 desc 'Reports idle instances by billing owner'
 command :idle_servers do |c|
   c.action do |global_options, options, args|
-    idle_servers = CSA::EC2.new.report_idle_servers
+    idle_servers = CSA::EC2.new.idle_servers
     output = "BILLING OWNER | IDLE SERVERS\n"
     idle_servers.each_pair do |owner, servers|
       output.concat "#{owner} | #{servers.join(' , ')}\n"

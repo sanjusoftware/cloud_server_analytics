@@ -48,7 +48,7 @@ module CloudServerAnalytics
       end
     end
 
-    def report_idle_servers
+    def idle_servers
       idle_servers = {}
       Server.all.each do |server|
         if server.is_idle?
@@ -62,25 +62,13 @@ module CloudServerAnalytics
       idle_servers
     end
 
-    def print_report(options)
-      start_time = Time.now
-      if options[:st]
-        begin
-          start_time = Time.parse(options[:st])
-        rescue
-          STDOUT.write "Start time is not provided or invalid. Taking it as current time #{start_time}\n\n"
-        end
-      end
+    def report(options)
+      get_report(options, get_report_start_time(options) || Time.now, get_time_period(options))
+    end
 
-      case options[:tp]
-        when 'day'
-          time_period = 1.day
-        when 'month'
-          time_period = 1.month
-        else
-          time_period = 1.week
-      end
+    private
 
+    def get_report(options, start_time, time_period)
       case options[:v]
         when 'cost'
           output = get_cost_report(options, start_time, time_period)
@@ -89,11 +77,31 @@ module CloudServerAnalytics
         else
           raise "The attribute value is not supported!!"
       end
-
       output
     end
 
-    private
+    def get_time_period(options)
+      case options[:tp]
+        when 'day'
+          time_period = 1.day
+        when 'month'
+          time_period = 1.month
+        else
+          time_period = 1.week
+      end
+      time_period
+    end
+
+    def get_report_start_time(options)
+      if options[:st]
+        begin
+          return Time.parse(options[:st])
+        rescue
+          STDOUT.write "Start time is not provided or invalid. Taking it as current time.\n\n"
+        end
+      end
+      nil
+    end
 
     def get_utilization_report(options, start_time, time_period)
       output = ("#{options[:tp].upcase} | #{options[:v].upcase} | INSTANCE\n")

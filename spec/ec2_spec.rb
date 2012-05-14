@@ -7,38 +7,42 @@ describe "EC2" do
 
   describe "load instances" do
     it "should print server list" do
-      response = {"xmlns" => "http://ec2.amazonaws.com/doc/2010-08-31/", "requestId" => "9538620b-7a5f-4b05-8184-a52804b43cac",
-                  "reservationSet" =>
-                    {"item" => [
-                      {"instancesSet" =>
-                         {"item" =>
-                            [
-                              {"instanceId" => "test_instance",
-                               "instanceState" => {"code" => "80", "name" => "stopped"},
-                               "reason" => "User initiated (2011-12-31 17:26:45 GMT)",
-                               "instanceType" => "t1.micro",
-                               "launchTime" => "2011-12-05T18:14:42.000Z",
-                               "placement" => {"availabilityZone" => "us-east-1a", "groupName" => nil},
-                               "monitoring" => {"state" => "disabled"},
-                               "stateReason" => {"code" => "Client.UserInitiatedShutdown", "message" => "Client.UserInitiatedShutdown: User initiated shutdown"},
-                               "tagSet" =>
-                                 {"item" =>
-                                    [
-                                      {"key" => "inscitiv:task-message", "value" => "Bootstrapped core packages"},
-                                      {"key" => "inscitiv:task-name", "value" => "corePackages"},
-                                      {"key" => "inscitiv:organization", "value" => "inscitiv_dev"},
-                                      {"key" => "inscitiv:status", "value" => "running"},
-                                      {"key" => "inscitiv:task-error-code", "value" => nil},
-                                      {"key" => "inscitiv:owner", "value" => "kgilpin"},
-                                      {"key" => "Name", "value" => "Workspace DB Server"}
-                                    ]
-                                 }
-                              }
-                            ]}
-                      }
-                    ]
-                    }
-      }
+      response =
+        {"xmlns" => "http://ec2.amazonaws.com/doc/2010-08-31/",
+         "requestId" => "9538620b-7a5f-4b05-8184-a52804b43cac",
+         "reservationSet" =>
+           {"item" =>
+              [
+                {"instancesSet" =>
+                   {"item" =>
+                      [
+                        {"instanceId" => "test_instance",
+                         "instanceState" => {"code" => "80", "name" => "stopped"},
+                         "reason" => "User initiated (2011-12-31 17:26:45 GMT)",
+                         "instanceType" => "t1.micro",
+                         "launchTime" => "2011-12-05T18:14:42.000Z",
+                         "placement" => {"availabilityZone" => "us-east-1a", "groupName" => nil},
+                         "monitoring" => {"state" => "disabled"},
+                         "stateReason" => {"code" => "Client.UserInitiatedShutdown", "message" => "Client.UserInitiatedShutdown: User initiated shutdown"},
+                         "tagSet" =>
+                           {"item" =>
+                              [
+                                {"key" => "inscitiv:task-message", "value" => "Bootstrapped core packages"},
+                                {"key" => "inscitiv:task-name", "value" => "corePackages"},
+                                {"key" => "inscitiv:organization", "value" => "inscitiv_dev"},
+                                {"key" => "inscitiv:status", "value" => "running"},
+                                {"key" => "inscitiv:task-error-code", "value" => nil},
+                                {"key" => "inscitiv:owner", "value" => "kgilpin"},
+                                {"key" => "Name", "value" => "Workspace DB Server"}
+                              ]
+                           }
+                        }
+                      ]
+                   }
+                }
+              ]
+           }
+        }
       AWS::EC2::Base.any_instance.expects(:describe_instances).returns(response)
 
       Server.find_by_name('test_instance').should be nil
@@ -47,7 +51,7 @@ describe "EC2" do
     end
   end
 
-  describe "stop instance" do
+  describe "stop server" do
     it "should raise error if the server name is not found" do
       lambda {
         @ec2.stop_server("not_existing_server")
@@ -67,13 +71,23 @@ describe "EC2" do
     end
   end
 
-  describe "report idle servers" do
+  describe "idle servers" do
     it "should return idle instances by billing owner" do
       Server.create!(:name => "server1", :billing_owner => "sanjeev")
       Server.create!(:name => "server2", :billing_owner => "mishra")
       Server.create!(:name => "server3", :billing_owner => "sanjeev")
       Server.create!(:name => "server4", :billing_owner => "mishra")
       Server.any_instance.stubs(:is_idle?).returns(true)
+      idle_servers = @ec2.report_idle_servers
+      puts idle_servers.inspect
+      idle_servers["sanjeev"].size.should == 2
+      idle_servers["mishra"].size.should == 2
+    end
+
+  end
+
+  describe "report" do
+    it "should give cost report grouped by billing owner" do
       idle_servers = @ec2.report_idle_servers
       puts idle_servers.inspect
       idle_servers["sanjeev"].size.should == 2
