@@ -1,6 +1,8 @@
 = cloud_server_analytics
 
-Describe your project here
+A command line tool to do analytical reporting of cost and utilization of amazon EC2 instances.
+
+Depends on using amazon-ec2 gem (https://github.com/grempe/amazon-ec2)
 
 :include:cloud_server_analytics.rdoc
 
