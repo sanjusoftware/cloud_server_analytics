@@ -69,8 +69,8 @@ module CloudServerAnalytics
 
       output = ("#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n")
 
-      all_applicable_costs = Cost.where(:upto > start_time)
-      end_time = all_applicable_costs.max(:upto)
+      all_applicable_costs = Cost.where("upto > ?", start_time)
+      end_time = Cost.maximum(:upto)
 
       while start_time < end_time
 
@@ -80,6 +80,8 @@ module CloudServerAnalytics
           output.concat("#{start_time.strftime("%m/%d/%Y")} | $#{cost.amount} | #{cost.billing_owner}\n")
         end
       end
+
+      STDOUT.write output
     end
 
     private
