@@ -2,7 +2,6 @@ module CloudServerAnalytics
   class EC2 < API
 
     def conn_obj
-      puts "came here"
       "AWS::EC2::Base"
     end
 
