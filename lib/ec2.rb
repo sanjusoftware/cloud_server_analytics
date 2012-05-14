@@ -69,15 +69,37 @@ module CloudServerAnalytics
 
       case options[:v]
         when 'cost'
-
+          output = get_cost_report(options, start_time, time_period)
         when 'utilization'
-
+          output = get_utilization_report(options, start_time, time_period)
         else
           raise "The attribute value is not supported!!"
       end
 
-      output = ("#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n")
+      STDOUT.write output
+    end
 
+    private
+
+    def get_utilization_report(options, start_time, time_period)
+      output = ("#{options[:tp].upcase} | #{options[:v].upcase} | INSTANCE\n")
+      end_time = Utilization.maximum(:timestamp)
+
+      while start_time < end_time
+
+        upto_time = start_time + time_period
+        utilizations_for_time_period =
+          Utilization.find_by_sql ["select avg(average) as utilization, server_id from utilizations where type = 'CPUUtilization' and timestamp > ? and timestamp < ? GROUP BY server_id ORDER BY utilization", start_time, upto_time]
+        utilizations_for_time_period.each do |utilization|
+          output.concat("#{start_time.strftime("%m/%d/%Y")} | #{utilization.utilization.to_f.round}% | #{utilization.server.name}\n")
+        end
+        start_time = upto_time
+      end
+      output
+    end
+
+    def get_cost_report(options, start_time, time_period)
+      output = ("#{options[:tp].upcase} | #{options[:v].upcase} | #{options[:a].upcase}\n")
       end_time = Cost.maximum(:upto)
 
       while start_time < end_time
@@ -89,11 +111,8 @@ module CloudServerAnalytics
         end
         start_time = upto_time
       end
-
-      STDOUT.write output
+      output
     end
-
-    private
 
     def create_new_run(run, instance)
       availability_zone = instance["placement"]["availabilityZone"]
