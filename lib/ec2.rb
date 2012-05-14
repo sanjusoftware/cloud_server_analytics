@@ -48,6 +48,20 @@ module CloudServerAnalytics
       end
     end
 
+    def report_idle_servers
+      idle_servers = {}
+      Server.all.each do |server|
+        if server.is_idle?
+          if idle_servers[server.billing_owner].present?
+            idle_servers[server.billing_owner] << server.name
+          else
+            idle_servers[server.billing_owner] = [server.name]
+          end
+        end
+      end
+      idle_servers
+    end
+
     def print_report(options)
       start_time = Time.now
       if options[:st]

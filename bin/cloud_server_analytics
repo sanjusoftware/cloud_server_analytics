@@ -39,22 +39,34 @@ desc 'Prints an analytical report on the cost and utilization of the ec2 instanc
 command :cost_report do |c|
   c.desc 'Provide the time period for which you want the report [week, day, month]'
   c.default_value 'week'
-  c.flag [:tp,'time-period']
+  c.flag [:tp, 'time-period']
 
   c.desc 'Provide the start time for the period for which you want the report'
   c.default_value ''
-  c.flag [:st,'start-time']
+  c.flag [:st, 'start-time']
 
   c.desc 'What report you want to see. [cost, utilization]'
   c.default_value 'cost'
-  c.flag [:v,'variable']
+  c.flag [:v, 'variable']
 
   c.desc 'attribute values by which to partition the output. [billing-owner]'
   c.default_value 'billing-owner'
-  c.flag [:a,'attribute']
+  c.flag [:a, 'attribute']
 
   c.action do |global_options, options, args|
     CSA::EC2.new.print_report(options)
+  end
+end
+
+desc 'Reports idle instances by billing owner'
+command :idle_servers do |c|
+  c.action do |global_options, options, args|
+    idle_servers = CSA::EC2.new.report_idle_servers
+    output = "BILLING OWNER | IDLE SERVERS\n"
+    idle_servers.each_pair do |owner, servers|
+      output.concat "#{owner} | #{servers.join(' , ')}\n"
+    end
+    STDOUT.write output
   end
 end
 

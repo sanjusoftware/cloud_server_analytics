@@ -67,4 +67,19 @@ describe "EC2" do
     end
   end
 
+  describe "report idle servers" do
+    it "should return idle instances by billing owner" do
+      Server.create!(:name => "server1", :billing_owner => "sanjeev")
+      Server.create!(:name => "server2", :billing_owner => "mishra")
+      Server.create!(:name => "server3", :billing_owner => "sanjeev")
+      Server.create!(:name => "server4", :billing_owner => "mishra")
+      Server.any_instance.stubs(:is_idle?).returns(true)
+      idle_servers = @ec2.report_idle_servers
+      puts idle_servers.inspect
+      idle_servers["sanjeev"].size.should == 2
+      idle_servers["mishra"].size.should == 2
+    end
+
+  end
+
 end
